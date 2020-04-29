@@ -17,7 +17,17 @@ public class Player : MonoBehaviour
 
     private Animator animator;
 
-    private AudioSource BirdFly;
+    [SerializeField]
+    private AudioSource audioSource;
+
+    [SerializeField]
+    private AudioClip flapSound;
+
+    [SerializeField]
+    private AudioClip getPointsSound;
+
+    [SerializeField]
+    private AudioClip deathSound;
 
     private ScoreDisplayer displayer;
 
@@ -29,20 +39,21 @@ public class Player : MonoBehaviour
         displayer = FindObjectOfType<ScoreDisplayer>();
         animator = GetComponent<Animator>();
         body = GetComponent<Rigidbody2D>();
-        BirdFly = GetComponent<AudioSource>();
         displayer.GetComponent<Text>().text = "0";
     }
 
     void Update()
     {
-        if (Input.GetButtonDown("Jump") && !isDead)
+        if (Input.GetMouseButtonDown(0) && !isDead)
         {
             var vel = body.velocity;
             vel.y = 0;
             body.velocity = vel;
 
             body.AddForce(transform.up * force, ForceMode2D.Impulse);
-            BirdFly.Play();
+            //birdFly.Play();
+
+            audioSource.PlayOneShot(flapSound);
         }
     }
 
@@ -51,8 +62,9 @@ public class Player : MonoBehaviour
         Debug.Log("Вы Проиграли!");
         animator.Play("Death");
         Destroy(gameObject, .5f);
-
         isDead = true;
+
+        audioSource.PlayOneShot(deathSound);
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -60,9 +72,9 @@ public class Player : MonoBehaviour
         if (isDead)
             return;
 
+        audioSource.PlayOneShot(getPointsSound);
         points++;
         displayer.GetComponent<Text>().text = points.ToString();
-        Debug.Log(points);
     }
 
 }
