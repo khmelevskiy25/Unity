@@ -34,6 +34,6 @@ public class TowerControl : MonoBehaviour
         barrelRotation.z = 0;
         barrelRotation.y = 0;
 
-        barrel.localEulerAngles = barrelRotation;
+        barrel.localEulerAngles = barrelRotation;    
     }
 }

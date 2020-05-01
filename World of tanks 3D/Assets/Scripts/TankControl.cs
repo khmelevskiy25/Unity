@@ -22,17 +22,23 @@ public class TankControl : MonoBehaviour
     [SerializeField]
     private List<WheelCollider> leftWheels;
 
+    [SerializeField]
+    private AudioSource engineSource;
+
     private Rigidbody body;
 
     private void Start()
     {
         body = GetComponent<Rigidbody>();
+
     }
 
     private void Update()
     {
         var verticalInput = Input.GetAxis("Vertical");
         var horizontalInput = Input.GetAxis("Horizontal");
+
+        engineSource.pitch = 1.0f + Mathf.Abs(verticalInput) * 0.3f + Mathf.Abs(horizontalInput) * 0.15f;
 
         var rightWheelsInput = verticalInput;
         var leftWheelsInput = verticalInput;

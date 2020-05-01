@@ -24,6 +24,9 @@ public class GunControl : MonoBehaviour
     [SerializeField]
     private ParticleSystem muzzleFlash;
 
+    [SerializeField]
+    private float damage = 15.0f;
+
     private Rigidbody body;
 
     private void Start()
@@ -49,6 +52,11 @@ public class GunControl : MonoBehaviour
         var ray = new Ray(shootPosition.position, shootPosition.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, float.MaxValue))
             return;
+
+        var enemy = hit.collider.GetComponentInParent<EnemyScript>();
+        if (enemy != null)
+            enemy.ApplyDamage(damage);
+            
 
         var effect = Instantiate(hitPrefab, hit.point, Quaternion.LookRotation(hit.normal));
         Destroy(effect, 2.0f);
