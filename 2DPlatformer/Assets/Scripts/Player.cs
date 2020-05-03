@@ -17,7 +17,6 @@ public class Player : MonoBehaviour
     public float checkRadius;
     public LayerMask whatIsGround;
 
-
     private int extraJumps;
     public int extraJumpsValue;
 
@@ -31,8 +30,11 @@ public class Player : MonoBehaviour
     }
 
     private void FixedUpdate()
-    { 
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+    {
+        if (body.velocity.y < 0.1f)
+            isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+        else
+            isGrounded = false;
 
         moveInput = Input.GetAxis("Horizontal");
 
@@ -48,19 +50,61 @@ public class Player : MonoBehaviour
     {
         var currentSpeed = body.velocity.x;
 
-        if (isGrounded == true)
-            extraJumps = extraJumpsValue;
+        if (isGrounded)
+            extraJumps = 0;
 
         if (Input.GetButtonDown("Jump") && extraJumps > 0)
         {
+            isGrounded = false;
             Jump();
             extraJumps--;
+            if (extraJumps == 0)
+                StartCoroutine(MakeFlip());
         }
         else if (Input.GetButtonDown("Jump") && extraJumps == 0 && isGrounded == true)
+        {
+            isGrounded = false;
             Jump();
+            extraJumps = extraJumpsValue;
+        }
 
         animator.SetBool("IsWalking", Mathf.Abs(currentSpeed) > 0.05f && isGrounded);
+        animator.SetBool("IsGrounded", isGrounded);
+
+        if (Input.GetMouseButtonDown(0))
+            animator.Play(isGrounded ? "Punch" : "PunchMidAir");
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Punch"))
+            return;
+
+        if (other.GetComponent<EnnemyScript>())
+            Destroy(other.gameObject);
+    }
+
+    private IEnumerator MakeFlip()
+    {
+        animator.Play("Flip");
+
+        var rotation = 0.0f;
+        while (rotation < 360.0f)
+        {
+            var rotationAmount = 720 * Time.deltaTime;
+
+            transform.Rotate(Vector3.forward * rotationAmount);
+
+            rotation += rotationAmount;
+
+            yield return null;
+        }
+
+        var angle = transform.eulerAngles;
+        angle.z = 0;
+        transform.eulerAngles = angle;
+    }
+
     void Jump()
     {
         body.velocity = Vector2.up * jumpForce;
