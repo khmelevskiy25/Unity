@@ -19,9 +19,10 @@ public class Lift : MonoBehaviour
 
     public void Move()
     {
+        
         transform.DOKill(false);
-
-        transform.DOMove(isAtTop ? initialPosition : targetPosition.position, 3.0f);
+        transform.DOMove(isAtTop ? initialPosition : targetPosition.position, 6.0f);
         isAtTop = !isAtTop;
     }
+
 }

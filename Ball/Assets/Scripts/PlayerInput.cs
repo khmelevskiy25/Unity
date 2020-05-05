@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -26,6 +27,15 @@ public class PlayerInput : MonoBehaviour
     [SerializeField]
     private AudioClip getCoin;
 
+    [SerializeField]
+    private Transform player;
+
+    [SerializeField]
+    private float CameraSpeed = 10.0f;
+
+    [SerializeField]
+    private float timer = 30f;
+
     public float SpeedBonus;
 
     private CheckPoint currentCheckpoint;
@@ -45,6 +55,8 @@ public class PlayerInput : MonoBehaviour
 
     private void Update()
     {
+        timer -= Time.deltaTime;
+        Debug.Log(Math.Round(timer));
         var hInput = Input.GetAxis("Horizontal");
         var vInput = Input.GetAxis("Vertical");
 
@@ -65,16 +77,16 @@ public class PlayerInput : MonoBehaviour
 
         if (Input.GetButtonDown("Jump") && Physics.Raycast(new Ray(transform.position, Vector3.down), raycastLength))
             body.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
-    }
 
+        //if (timer <= 0)
+        //    transform.position = startPosition;
+    }
+ 
     private void OnTriggerEnter(Collider other)
     {
+        
         if (other.GetComponent<Restarter>())
         {
-            var positionLift = GetComponent<Lift>();
-
-            positionLift.DOKill(false);
-
             liveCount--;
             if (liveCount <= 0)
             {
@@ -86,6 +98,7 @@ public class PlayerInput : MonoBehaviour
             transform.position = initalPosition;
             body.velocity = Vector3.zero;
             body.angularVelocity = Vector3.zero;
+
         }
 
         var checkPoint = other.GetComponent<CheckPoint>();
@@ -94,6 +107,7 @@ public class PlayerInput : MonoBehaviour
             currentCheckpoint = checkPoint;
             initalPosition = other.transform.position;
             liveCount = 3;
+            timer += 30f;
         }
 
         if (other.GetComponent<Coin>() == null)
@@ -102,6 +116,6 @@ public class PlayerInput : MonoBehaviour
         audioSource.PlayOneShot(getCoin);
         coin++;
         Debug.Log(coin);
-
     }
+
 }
