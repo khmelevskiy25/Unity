@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -15,6 +16,15 @@ public class PlayerInput : MonoBehaviour
 
     [SerializeField]
     private int liveCount = 3;
+
+    [SerializeField]
+    private int coin;
+
+    [SerializeField]
+    private AudioSource audioSource;
+
+    [SerializeField]
+    private AudioClip getCoin;
 
     public float SpeedBonus;
 
@@ -61,6 +71,10 @@ public class PlayerInput : MonoBehaviour
     {
         if (other.GetComponent<Restarter>())
         {
+            var positionLift = GetComponent<Lift>();
+
+            positionLift.DOKill(false);
+
             liveCount--;
             if (liveCount <= 0)
             {
@@ -81,5 +95,13 @@ public class PlayerInput : MonoBehaviour
             initalPosition = other.transform.position;
             liveCount = 3;
         }
+
+        if (other.GetComponent<Coin>() == null)
+            return;
+
+        audioSource.PlayOneShot(getCoin);
+        coin++;
+        Debug.Log(coin);
+
     }
 }
