@@ -8,9 +8,12 @@ public class Lift : MonoBehaviour
     [SerializeField]
     private Transform targetPosition;
 
+    [SerializeField]
+    private Rigidbody body;
+
     private Vector3 initialPosition;
 
-    private bool isAtTop = false;
+    private Sequence moveSequence;
 
     private void Start()
     {
@@ -19,10 +22,13 @@ public class Lift : MonoBehaviour
 
     public void Move()
     {
-        
-        transform.DOKill(false);
-        transform.DOMove(isAtTop ? initialPosition : targetPosition.position, 6.0f);
-        isAtTop = !isAtTop;
-    }
+        if (moveSequence != null)
+            return;
 
+        moveSequence = DOTween.Sequence();
+        moveSequence.Append(body.DOMove(targetPosition.position, 6.0f));
+        moveSequence.AppendInterval(2.0f);
+        moveSequence.Append(body.DOMove(initialPosition, 6.0f));
+        moveSequence.AppendCallback(() => moveSequence = null);
+    }
 }

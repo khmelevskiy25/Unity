@@ -7,6 +7,12 @@ using System;
 public class PlayerInput : MonoBehaviour
 {
     [SerializeField]
+    private Cinemachine.CinemachineVirtualCamera frontCamera;
+
+    [SerializeField]
+    private Cinemachine.CinemachineVirtualCamera backCamera;
+
+    [SerializeField]
     private float forceAmount = 100.0f;
 
     [SerializeField]
@@ -17,9 +23,6 @@ public class PlayerInput : MonoBehaviour
 
     [SerializeField]
     private int liveCount = 3;
-
-    [SerializeField]
-    private int coin;
 
     [SerializeField]
     private AudioSource audioSource;
@@ -36,6 +39,8 @@ public class PlayerInput : MonoBehaviour
     [SerializeField]
     private float timer = 30f;
 
+    private int score = 0;
+
     public float SpeedBonus;
 
     private CheckPoint currentCheckpoint;
@@ -46,8 +51,12 @@ public class PlayerInput : MonoBehaviour
 
     private Vector3 startPosition;
 
+    private List<int> scores = new List<int>();
+
     private void Start()
     {
+        backCamera.gameObject.SetActive(false);
+        Application.targetFrameRate = 60;
         initalPosition = transform.position;
         startPosition = transform.position;
         body = GetComponent<Rigidbody>();
@@ -56,7 +65,6 @@ public class PlayerInput : MonoBehaviour
     private void Update()
     {
         timer -= Time.deltaTime;
-        Debug.Log(Math.Round(timer));
         var hInput = Input.GetAxis("Horizontal");
         var vInput = Input.GetAxis("Vertical");
 
@@ -78,13 +86,27 @@ public class PlayerInput : MonoBehaviour
         if (Input.GetButtonDown("Jump") && Physics.Raycast(new Ray(transform.position, Vector3.down), raycastLength))
             body.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
 
-        //if (timer <= 0)
-        //    transform.position = startPosition;
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            backCamera.gameObject.SetActive(!backCamera.gameObject.activeSelf);
+            frontCamera.gameObject.SetActive(!frontCamera.gameObject.activeSelf);
+        }
+
+        if (timer <= 0)
+        {
+            transform.position = startPosition;
+            timer = 30.0f;
+        }
     }
  
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.GetComponent<Coin>())
+        {
+            score++;
+            audioSource.PlayOneShot(getCoin);
+        }
+
         if (other.GetComponent<Restarter>())
         {
             liveCount--;
@@ -93,6 +115,18 @@ public class PlayerInput : MonoBehaviour
                 currentCheckpoint = null;
                 initalPosition = startPosition;
                 liveCount = 3;
+
+                scores.Add(score);
+                scores.Sort((x, y) => y.CompareTo(x));
+                var currentScore = scores.GetRange(0, Mathf.Min(scores.Count, 10));
+
+                string totalScore = string.Empty;
+                foreach (var scoreToAdd in scores)
+                    totalScore += "\n" + scoreToAdd;
+
+                Debug.Log(totalScore);
+
+                score = 0;
             }
 
             transform.position = initalPosition;
@@ -112,10 +146,6 @@ public class PlayerInput : MonoBehaviour
 
         if (other.GetComponent<Coin>() == null)
             return;
-
-        audioSource.PlayOneShot(getCoin);
-        coin++;
-        Debug.Log(coin);
     }
 
 }
