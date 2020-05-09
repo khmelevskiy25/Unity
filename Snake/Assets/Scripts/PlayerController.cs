@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameObject bonePrefab;
 
-    [Range(0, 4)]
+    [Range(0, 20)]
     [SerializeField]
     private float speed;
 
@@ -29,16 +29,18 @@ public class PlayerController : MonoBehaviour
 
     private Collider ourCollider;
 
+
     private void Start()
     {
         _transform = GetComponent<Transform>();
         body = GetComponent<Rigidbody>();
         ourCollider = GetComponent<Collider>();
+        StartCoroutine(ChangeSpeed());
     }
 
     private void FixedUpdate()
     {
-        MoveSnake(_transform.position + transform.forward * speed);
+        MoveSnake(_transform.position + transform.forward * speed * Time.deltaTime);
 
         var angel = Input.GetAxis("Horizontal") * force * Time.deltaTime;
         body.MoveRotation(Quaternion.Euler(0, angel, 0) * body.rotation);
@@ -51,6 +53,9 @@ public class PlayerController : MonoBehaviour
             out Vector3 normal,
             out float distance))
             return;
+
+        normal.y = 0;
+        normal.Normalize();
 
         body.transform.position = body.transform.position - normal * distance;
     }
@@ -74,15 +79,30 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Target>() == null)
-            return;
+        if (other.GetComponent<Target>() != null)
+        {
+            Destroy(other.gameObject);
 
-        Destroy(other.gameObject);
+            var lastBone = tails[tails.Count - 1];
 
-        var lastBone = tails[tails.Count - 1];
+            var bone = Instantiate(bonePrefab, transform.root);
+            bone.transform.position = lastBone.transform.position - lastBone.transform.forward * bonesDistance;
+            tails.Add(bone.transform);
+        }
 
-        var bone = Instantiate(bonePrefab);
-        bone.transform.position = lastBone.transform.position - lastBone.transform.forward * bonesDistance;
-        tails.Add(bone.transform);
+        if (other.GetComponent<BoneScript>() != null)
+            Destroy(transform.root.gameObject);
+    }
+
+    private IEnumerator ChangeSpeed()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(2.0f);
+
+            speed *= 2.0f;
+            if (speed > 20)
+                speed = 20;
+        }
     }
 }

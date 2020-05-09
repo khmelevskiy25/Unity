@@ -8,10 +8,10 @@ public class PartsSpawner : MonoBehaviour
     private GameObject target;
 
     [SerializeField]
-    private float zoneWidth = 20.0f;
+    private float zoneWidth = 15.0f;
 
     [SerializeField]
-    private float zoneLength = 20.0f;
+    private float zoneLength = 15.0f;
 
     private GameObject currentTarget;
 
