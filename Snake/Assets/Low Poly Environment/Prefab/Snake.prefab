@@ -169,8 +169,8 @@ MonoBehaviour:
   - {fileID: 7877188283649372752}
   bonesDistance: 1
   bonePrefab: {fileID: 4212023905463498049}
-  speed: 1
-  force: 200
+  speed: 3
+  force: 300
 --- !u!54 &7205711907306693591
 Rigidbody:
   m_ObjectHideFlags: 0

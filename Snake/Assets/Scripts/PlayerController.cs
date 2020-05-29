@@ -96,13 +96,15 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator ChangeSpeed()
     {
+        var maxSpeed = 30;
+
         while(true)
         {
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(30.0f);
 
             speed *= 2.0f;
-            if (speed > 20)
-                speed = 20;
+            if (speed > maxSpeed)
+                speed = maxSpeed;
         }
     }
 }
